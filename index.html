@@ -42,7 +42,7 @@
 :root[data-theme=light]{color-scheme:light}
 :root[data-theme=dark]{color-scheme:dark}
 *{box-sizing:border-box;min-width:0}
-html{scroll-padding-top:120px}
+html{scroll-padding-top:calc(120px + env(safe-area-inset-top))}
 body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 Geist,Inter,system-ui,sans-serif;overflow-x:clip;-webkit-font-smoothing:antialiased}
 body::before{content:"";position:fixed;inset:-20vmax;z-index:-1;pointer-events:none;background:radial-gradient(40vmax 34vmax at 12% 8%,var(--m1),transparent 70%),radial-gradient(44vmax 36vmax at 88% 18%,var(--m2),transparent 70%),radial-gradient(40vmax 34vmax at 60% 92%,var(--m3),transparent 70%)}
 .mono,.code,td.num,.kpi .v,.tick{font-family:"Geist Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
@@ -56,7 +56,7 @@ p{margin:0}
 .card header{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:14px}
 .card header span{color:var(--mute);font-size:13px}
 /* app bar */
-.bar{position:sticky;top:0;z-index:30;padding-block:10px;background:color-mix(in srgb,var(--bg) 55%,transparent);backdrop-filter:blur(16px) saturate(160%);-webkit-backdrop-filter:blur(16px) saturate(160%);border-bottom:1px solid var(--stroke)}
+.bar{position:sticky;top:0;z-index:30;padding-block:10px;padding-top:max(10px,calc(env(safe-area-inset-top) + 4px));background:color-mix(in srgb,var(--bg) 55%,transparent);backdrop-filter:blur(16px) saturate(160%);-webkit-backdrop-filter:blur(16px) saturate(160%);border-bottom:1px solid var(--stroke)}
 .bar .wrap{display:flex;align-items:center;gap:12px}
 .brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:-.01em;white-space:nowrap}
 .logo{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--cyan),var(--blue) 55%,var(--coral));display:grid;place-items:center;box-shadow:inset 0 1px 0 rgba(255,255,255,.4)}
@@ -535,7 +535,7 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px}
   <div class="dh"><h2 id="cxH">Connect your Google Sheet</h2><p class="sub2">Visitors only ever read your flights. Adding, editing and deleting needs the token, which stays on your devices.</p></div>
   <ol class="cxs" id="cxSteps"><li>Press <b>Copy script</b> (the token below is already filled in).</li><li>In your sheet: <b>Extensions → Apps Script</b>, replace everything with the script, Save.</li>
   <li><b>Deploy → New deployment → Web app</b> · Execute as <b>Me</b> · Who has access <b>Anyone</b>. Approve, then copy the URL ending in <code>/exec</code>.</li><li>Paste it here and press <b>Connect</b>.</li></ol>
-  <div class="fg" style="grid-template-columns:1fr"><label id="cxUL">Web app URL<input id="cxU" placeholder="https://script.google.com/macros/s/…/exec" autocomplete="off" spellcheck="false"></label>
+  <div class="fg" style="grid-template-columns:1fr"><label id="cxUL">Web app URL or setup link<input id="cxU" placeholder="Paste the /exec URL or a setup link" autocomplete="off" spellcheck="false"></label>
   <label>Token<div class="askrow"><input id="cxK" autocomplete="off" spellcheck="false" style="font-family:'Geist Mono',monospace"><button class="ibtn" type="button" id="cxNew">New</button></div></label></div>
   <div id="cxQr" hidden style="display:grid;justify-items:center;gap:6px;margin:6px 0 4px"><div id="cxQrImg" style="background:#fff;padding:10px;border-radius:12px;line-height:0"></div><span class="sub2">Scan with your phone’s camera to connect it</span></div>
   <p class="sub2" id="cxMsg" aria-live="polite" style="min-height:1.2em;margin:10px 0"></p>
@@ -1212,8 +1212,9 @@ $('cxNew').addEventListener('click',()=>{$('cxK').value=newTok();cxMsg('New toke
 $('cxX').addEventListener('click',()=>$('cx').close());
 $('devB').addEventListener('click',()=>{dlg.close();openCx()});
 $('cxCopy').addEventListener('click',async()=>{const t=CODE_GS.replace('__TOKEN__',$('cxK').value.trim());try{await navigator.clipboard.writeText(t);cxMsg('Script copied. Paste it into Extensions → Apps Script.')}catch(e){cxMsg('Couldn’t copy automatically — your browser blocked the clipboard.')}});
-$('cxGo').addEventListener('click',async()=>{const u=$('cxU').value.trim(),k=$('cxK').value.trim();
-  if(!/^https:\/\/script\.google(usercontent)?\.com\/.+\/exec$/.test(u))return cxMsg('Paste the Web app URL — it starts with https://script.google.com and ends in /exec.');
+$('cxGo').addEventListener('click',async()=>{let u=$('cxU').value.trim(),k=$('cxK').value.trim();
+  if(/#u=/.test(u)){try{const hp=new URLSearchParams(u.slice(u.indexOf('#')+1));u=hp.get('u')||'';k=hp.get('k')||k;$('cxU').value=u;$('cxK').value=k}catch(e){}}
+  if(!/^https:\/\/script\.google(usercontent)?\.com\/.+\/exec$/.test(u))return cxMsg('Paste the Web app URL (starts with https://script.google.com, ends in /exec) or a setup link from a connected device.');
   if(k.length<12)return cxMsg('Use a token of at least 12 characters.');
   cxMsg('Checking…');const old=[GS.url,GS.key];GS.set(u,k);
   try{await gsGet("'Flight Information'!A1:B1");
