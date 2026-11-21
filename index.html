@@ -260,6 +260,23 @@ a.jp:hover{text-decoration:underline}
 td.ed{width:1%;white-space:nowrap}.edb{font:500 12px Geist,sans-serif;height:32px;padding:0 10px;border-radius:8px;border:1px solid var(--stroke);background:var(--glass);color:var(--mute);cursor:pointer}.edb:hover{color:var(--ink)}
 html.share .priv{display:none!important}
 .cxs{margin:0 0 14px;padding-left:20px;display:grid;gap:6px;font-size:13px;line-height:1.45}.cxs code{font-family:"Geist Mono",monospace;font-size:12px}#cxOn[hidden],#cxQr[hidden],#cxSteps[hidden],.fg label[hidden]{display:none!important}#cxQrImg svg{display:block;max-width:220px;height:auto}
+/* section jump menu */
+.jump{position:fixed;right:max(16px,env(safe-area-inset-right));bottom:max(16px,env(safe-area-inset-bottom));z-index:40;display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+.jbar{display:flex;align-items:center;border-radius:999px;padding:4px;box-shadow:0 12px 30px -12px rgba(0,0,0,.45)}
+.jbar button{all:unset;cursor:pointer;display:flex;align-items:center;gap:8px;height:36px;padding:0 10px;border-radius:999px;color:var(--ink);font:600 13px Geist,sans-serif;transition:background .15s}
+.jbar button:hover,.jbar button:focus-visible{background:color-mix(in srgb,var(--ink) 10%,transparent)}
+.jbar button:focus-visible{outline:2px solid var(--accent,#5ad);outline-offset:1px}
+#navB{min-width:0}#navCur{max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#navM{width:250px;max-height:min(70vh,520px);overflow:auto;border-radius:18px;padding:8px;box-shadow:0 20px 40px -16px rgba(0,0,0,.5);transform-origin:bottom right;animation:jIn .16s ease-out}
+@keyframes jIn{from{opacity:0;transform:translateY(6px) scale(.97)}}
+.jh{font:700 10px Geist,sans-serif;letter-spacing:.22em;text-transform:uppercase;color:var(--mute);padding:6px 10px 8px}
+#navL a{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:10px;color:var(--ink);text-decoration:none;font-size:14px}
+#navL a i{font:600 11px "Geist Mono",monospace;font-style:normal;color:var(--mute);width:18px}
+#navL a:hover,#navL a:focus-visible{background:color-mix(in srgb,var(--ink) 8%,transparent);outline:none}
+#navL a[aria-current="true"]{background:color-mix(in srgb,var(--ink) 12%,transparent);font-weight:600}
+#navL a[aria-current="true"] i{color:inherit}
+@media(max-width:700px){#navCur{max-width:110px}.jump{right:12px;bottom:12px}}
+@media print{.jump{display:none}}
 dialog.small{width:min(420px,calc(100vw - 24px));padding:20px}dialog.small .btns{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
 dialog.story{width:min(440px,100vw);height:min(760px,100dvh);max-height:100dvh;padding:0;border:0;border-radius:22px;color:#fff;background:radial-gradient(120% 80% at 20% 10%,#14b8a6 0,transparent 55%),radial-gradient(100% 70% at 90% 90%,#ff6b4a 0,transparent 55%),linear-gradient(160deg,#0b2638,#081019);overflow:hidden}
 dialog.story::backdrop{background:rgba(2,6,12,.7);backdrop-filter:blur(8px)}
@@ -311,18 +328,18 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px}
 </div>
 
 <main class="wrap">
-  <section class="head">
+  <section id="s-overview" data-nav="Overview" class="head">
     <div>
       <h1 id="title">Michael's flight log</h1>
       <p class="sub" id="sub">Every flight from the cleaned flight sheet.</p>
     </div>
     <div class="hacts">
       <div class="next glass" id="next" hidden></div>
-      <div class="acts"><button class="ibtn" id="yirB" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4v16l13-8z"/></svg>Year in review</button><button class="ibtn" id="posterB" type="button">Poster</button><button class="ibtn" id="shareB" type="button" aria-pressed="false" data-tip="Hides tail numbers, seats, notes, exact dates and your next flight"><span>Share mode</span></button><button class="ibtn" id="askB" type="button" hidden>Ask</button></div>
+      <div class="acts"><button class="ibtn" id="yirB" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4v16l13-8z"/></svg>Year in review</button><button class="ibtn" id="posterB" type="button">Poster</button><button class="ibtn" id="shareB" type="button" aria-pressed="false" data-tip="Hides tail numbers, seats, notes, exact dates and your next flight"><span>Share mode</span></button></div>
     </div>
   </section>
 
-  <section class="bento">
+  <section id="s-map" data-nav="Route map" class="bento">
     <div class="glass mapcard">
       <div id="map" role="img" aria-label="Map of every route flown"></div>
       <div class="mtop">
@@ -338,31 +355,31 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px}
     <div class="kpis" id="kpis"></div>
   </section>
 
-  <section class="row2">
+  <section id="s-distance" data-nav="Distance &amp; months" class="row2">
     <div class="glass card fill"><header><h2 id="cumH">Distance flown</h2><span id="cumS"></span></header><div class="fig" id="cCum" style="min-height:300px"></div></div>
     <div class="glass card"><header><h2>Every month</h2><span>Click a year</span></header><div class="heat" id="heat"></div></div>
   </section>
-  <section class="row2">
+  <section id="s-years" data-nav="Years &amp; clock" class="row2">
     <div class="glass card fill"><header><h2 id="whenH">Flights per year</h2><span>Click a bar to filter</span></header><div class="fig" id="cYear"></div></div>
     <div class="glass card fill"><header><h2 id="hourH">Departure clock</h2><span>Local time</span></header><div class="fig" id="cHour" style="min-height:260px"></div></div>
   </section>
 
-  <section class="glass card" style="margin-top:14px"><div class="hm2"><div><header><h2 id="homeH">Home base</h2><span>Busiest airport each year</span></header><div id="homes" class="homes"></div></div>
+  <section id="s-milestones" data-nav="Home base &amp; milestones" class="glass card" style="margin-top:14px"><div class="hm2"><div><header><h2 id="homeH">Home base</h2><span>Busiest airport each year</span></header><div id="homes" class="homes"></div></div>
       <div><header><h2>Milestones</h2><span>Next goals</span></header><div class="miles" id="miles"></div></div></div></section>
-  <section class="glass card" style="margin-top:14px"><header><h2 id="otH">On-time record</h2><span>Actual vs scheduled gate arrival</span></header><div id="otBody" class="ot"></div></section>
-  <section class="row3">
+  <section id="s-ontime" data-nav="On-time record" class="glass card" style="margin-top:14px"><header><h2 id="otH">On-time record</h2><span>Actual vs scheduled gate arrival</span></header><div id="otBody" class="ot"></div></section>
+  <section id="s-airlines" data-nav="Airlines, fleet &amp; routes" class="row3">
     <div class="glass card"><header><h2 id="whoH">Airlines</h2><span>Click to filter</span></header><div class="bars" id="bAir"></div></div>
     <div class="glass card"><header><h2>Your fleet, to scale</h2><span>Tail ↗ opens JetPhotos</span></header><div class="fleet" id="bPlane"></div></div>
     <div class="glass card"><header><h2>Routes</h2><span>Both directions</span></header><div class="bars" id="bRoute"></div></div>
   </section>
 
-  <section class="rowB">
+  <section id="s-airports" data-nav="Airports &amp; seats" class="rowB">
     <div class="glass card"><header><h2 id="whereH">Airports</h2><span>Takeoffs + landings</span></header><div class="bars" id="bPort"></div></div>
     <div class="glass card"><header><h2>Seat and records</h2></header><div id="seat"></div><div class="recs" id="recs"></div></div>
   </section>
 
-  <section class="glass card" style="margin-top:14px"><header><h2 id="tripH">Trips</h2><span>Tap a trip to fly it on the map</span></header><div class="trips" id="trips"></div><div class="more"><button class="ibtn" id="tripMore" type="button">Show all</button></div></section>
-  <section class="glass card" style="margin-top:14px"><header><h2 id="passH">Airport passport</h2><span>Stamped on first visit · hover a stamp</span></header>
+  <section id="s-trips" data-nav="Trips" class="glass card" style="margin-top:14px"><header><h2 id="tripH">Trips</h2><span>Tap a trip to fly it on the map</span></header><div class="trips" id="trips"></div><div class="more"><button class="ibtn" id="tripMore" type="button">Show all</button></div></section>
+  <section id="s-passport" data-nav="Passport" class="glass card" style="margin-top:14px"><header><h2 id="passH">Airport passport</h2><span>Stamped on first visit · hover a stamp</span></header>
     <div class="passport">
       <div class="ppcover"><div class="foil">
         <div class="pt2">PASSPORT</div>
@@ -389,8 +406,8 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px}
 <g stroke="#0e1a33" stroke-width="1.3" opacity=".7"><path d="M54.5,52V70M58,52V74.5M62,52V74.5M65.5,52V70"/></g>
 </symbol><filter id="ink" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="1.4" numOctaves="1" seed="4" result="n"/><feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -0.7 1.3" result="m"/><feComposite in="SourceGraphic" in2="m" operator="in" result="c"/><feTurbulence type="turbulence" baseFrequency=".035" numOctaves="2" seed="9" result="w"/><feDisplacementMap in="c" in2="w" scale="1.6"/></filter></svg>
   </section>
-  <details class="glass card dq" style="margin-top:14px"><summary><h2>Needs attention</h2><span class="sub2" id="dqS"></span></summary><ul id="dqList"></ul><div class="more"><button class="ibtn" id="dqMore" type="button">Show all</button></div></details>
-  <section class="glass card" id="log" style="margin-top:14px">
+  <details id="s-quality" data-nav="Needs attention" class="glass card dq" style="margin-top:14px"><summary><h2>Needs attention</h2><span class="sub2" id="dqS"></span></summary><ul id="dqList"></ul><div class="more"><button class="ibtn" id="dqMore" type="button">Show all</button></div></details>
+  <section class="glass card" id="log" data-nav="Logbook" style="margin-top:14px">
     <div class="logbar">
       <div><h2>Logbook</h2><p class="sub2" id="logN" style="margin-top:2px"></p></div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
@@ -445,10 +462,6 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px}
 <dialog id="cfm" class="glass small"><p id="cfmT"></p><div class="btns"><button class="ibtn" type="button" id="cfmNo">Keep it</button><button class="ibtn danger" type="button" id="cfmYes">Delete</button></div></dialog>
 <dialog id="yir" class="story" aria-label="Year in review"><div class="bars2" id="yirBars"></div><div class="yt"><select id="yirY" aria-label="Year"></select><button class="ibtn" type="button" id="yirX" aria-label="Close">✕</button></div>
   <div class="yb" id="yirBody"></div><button class="nav l" id="yirPrev" type="button" aria-label="Previous"></button><button class="nav r" id="yirNext" type="button" aria-label="Next"></button></dialog>
-<dialog id="ask" class="glass" aria-labelledby="askH"><form id="askF"><div class="dh"><h2 id="askH">Ask about your flights</h2><p class="sub2">Claude answers from your flight log only.</p></div>
-  <div class="askrow"><input id="askQ" placeholder="e.g. How many times have I flown into Chicago?" autocomplete="off"><button class="ibtn add" type="submit">Ask</button></div>
-  <div class="sugg"><button type="button" class="chip">Which year did I fly the most miles?</button><button type="button" class="chip">When did I last fly Delta?</button><button type="button" class="chip">What's my most delayed route?</button><button type="button" class="chip">How many red-eyes have I taken?</button></div>
-  <div class="answer" id="askA" aria-live="polite"></div><div class="btns" style="margin-top:12px;display:flex;justify-content:flex-end"><button class="ibtn" type="button" id="askX">Close</button></div></form></dialog>
 <dialog id="cx" class="glass" aria-labelledby="cxH"><form id="cxF" method="dialog" style="padding:22px">
   <div class="dh"><h2 id="cxH">Connect your Google Sheet</h2><p class="sub2">Visitors only ever read your flights. Adding, editing and deleting needs the token, which stays on your devices.</p></div>
   <ol class="cxs" id="cxSteps"><li>Press <b>Copy script</b> (the token below is already filled in).</li><li>In your sheet: <b>Extensions → Apps Script</b>, replace everything with the script, Save.</li>
@@ -460,6 +473,10 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px}
   <div class="btns" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end"><button class="ibtn" type="button" id="cxCopy">Copy script</button>
    <span id="cxOn" style="display:contents"><button class="ibtn" type="button" id="cxLink">Copy link for another device</button><button class="ibtn danger" type="button" id="cxOff">Disconnect</button></span>
    <button class="ibtn" type="button" id="cxX">Close</button><button class="ibtn add" type="button" id="cxGo">Connect</button></div></form></dialog>
+<nav class="jump" aria-label="Jump to a section">
+  <div id="navM" class="glass" hidden><div class="jh">Jump to</div><div id="navL"></div></div>
+  <div class="jbar glass"><button type="button" id="navUp" aria-label="Previous section"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg></button><button type="button" id="navB" aria-expanded="false" aria-controls="navM"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg><span id="navCur">Overview</span></button><button type="button" id="navDn" aria-label="Next section"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button></div>
+</nav>
 <div id="tip" role="tooltip"></div>
 <div id="toast" class="glass" role="status"></div>
 
@@ -1109,21 +1126,7 @@ $('delB').addEventListener('click',()=>{const x=ALL[+fm.dataset.k];$('cfmT').tex
   if(cfm.showModal)cfm.showModal();else cfm.setAttribute('open','')});
 $('cfmNo').addEventListener('click',()=>cfm.close());$('cfmYes').addEventListener('click',async()=>{cfm.close();if(cfmGo)await cfmGo()});
 
-/* ================= ask a question ================= */
-let sampleFn=null;
-const askP=$('ask');
-$('askB').addEventListener('click',()=>{if(askP.showModal)askP.showModal();else askP.setAttribute('open','');setTimeout(()=>$('askQ').focus(),30)});
-$('askX').addEventListener('click',()=>askP.close());
-document.querySelectorAll('#ask .chip').forEach(b=>b.addEventListener('click',()=>{$('askQ').value=b.textContent;$('askF').requestSubmit()}));
-let askCtl=null;
-$('askF').addEventListener('submit',async e=>{e.preventDefault();const q=$('askQ').value.trim();if(!q||!sampleFn)return;if(askCtl)askCtl.abort();askCtl=new AbortController();
-  const rows=FLOWN.map(x=>[x.d,x.fn,AL[x.al]||'',x.f,x.t,AP[x.f][0],AP[x.t][0],AP[x.t][4],x.dep,x.arr,x.dur,Math.round(x.km*0.621371),x.ac,S.share?'':x.reg,S.share?'':x.seat,(()=>{const m=delayOf(x);return m==null?'':m})(),S.share?'':x.note].join('|')).join('\n');
-  const prompt=`You answer questions about one person's personal flight log. Use ONLY the data below. Be brief (1-4 sentences), give exact numbers, and say so if the data can't answer it. Today is ${todayISO()}. Flights after today are not in the data.\nColumns: date|flight|airline|from|to|from_city|to_city|to_country|dep_local|arr_local|block_min|miles|aircraft|tail|seat|arrival_delay_min|note\n${rows}\n\nQuestion: ${q}`;
-  $('askA').textContent='Thinking…';$('askA').classList.add('busy');
-  try{const r=await sampleFn(prompt,{signal:askCtl.signal,onText:({text})=>{$('askA').textContent=text}});$('askA').textContent=r.text||'(no answer)'}
-  catch(err){$('askA').textContent=err&&err.code==='rate_limited'?'Too many questions at once; wait a moment.':err&&err.code==='not_granted'?'Asking Claude isn’t available here.':'Couldn’t get an answer this time.'}
-  finally{$('askA').classList.remove('busy')}});
-(async()=>{try{const u=window.claude&&window.claude.use;if(!u)return;const [sm,d]=await Promise.all([u('sample').catch(()=>null),u('downloads').catch(()=>null)]);dl=d;if(sm){sampleFn=sm;$('askB').hidden=false}}catch(e){}})();
+(async()=>{try{const u=window.claude&&window.claude.use;if(!u)return;dl=await u('downloads').catch(()=>null);}catch(e){}})();
 
 const cxMsg=t=>$('cxMsg').textContent=t;
 $('cxNew').addEventListener('click',()=>{$('cxK').value=newTok();cxMsg('New token — copy the script again and redeploy it as a new version.')});
@@ -1142,6 +1145,24 @@ $('cxGo').addEventListener('click',async()=>{const u=$('cxU').value.trim(),k=$('
 $('cxOff').addEventListener('click',()=>{GS.clear();toast('Disconnected on this device');setTimeout(()=>location.reload(),600)});
 $('cxLink').addEventListener('click',async()=>{const l=setupLink();
   try{await navigator.clipboard.writeText(l);cxMsg('Link copied. Open it once on your other device — send it privately, it contains your token.')}catch(e){cxMsg(l)}});
+
+/* ================= section jump menu ================= */
+(()=>{const secs=[...document.querySelectorAll('[data-nav]')],nm=$('navM'),nb=$('navB');let cur=0;
+  const vis=()=>secs.filter(s=>s.offsetParent!==null&&!s.hidden);
+  $('navL').innerHTML=secs.map((s,i)=>`<a href="#${s.id}" data-i="${i}"><i>${String(i+1).padStart(2,'0')}</i>${esc(s.dataset.nav)}</a>`).join('');
+  const setCur=i=>{cur=i;$('navCur').textContent=secs[i].dataset.nav;nm.querySelectorAll('a').forEach(a=>a.setAttribute('aria-current',+a.dataset.i===i?'true':'false'))};
+  const open=o=>{nm.hidden=!o;nb.setAttribute('aria-expanded',o);if(o){const a=nm.querySelector('a[aria-current="true"]')||nm.querySelector('a');a&&a.focus({preventScroll:true});a&&a.scrollIntoView({block:'nearest'})}};
+  const go=s=>{if(!s)return;if(s.tagName==='DETAILS')s.open=true;s.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});setCur(secs.indexOf(s))};
+  nb.addEventListener('click',()=>open(nm.hidden));
+  $('navL').addEventListener('click',e=>{const a=e.target.closest('a');if(!a)return;e.preventDefault();open(false);go(secs[+a.dataset.i]);nb.focus({preventScroll:true})});
+  const step=d=>{const v=vis(),y=parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop)||0;let i=v.findIndex(s=>s.getBoundingClientRect().top>y+4);
+    if(d<0){i=v.findIndex(s=>s.getBoundingClientRect().top>=y-4);i=(i<0?v.length:i)-1;if(i<0)i=0}else if(i<0)i=v.length-1;go(v[i])};
+  $('navUp').addEventListener('click',()=>step(-1));$('navDn').addEventListener('click',()=>step(1));
+  document.addEventListener('click',e=>{if(!nm.hidden&&!e.target.closest('.jump'))open(false)});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!nm.hidden){open(false);nb.focus()}});
+  nm.addEventListener('keydown',e=>{if(e.key!=='ArrowDown'&&e.key!=='ArrowUp')return;e.preventDefault();const as=[...nm.querySelectorAll('a')],k=as.indexOf(document.activeElement);as[(k+(e.key==='ArrowDown'?1:-1)+as.length)%as.length].focus()});
+  const upd=()=>{const y=innerHeight*.35;let best=0;secs.forEach((s,i)=>{if(s.offsetParent!==null&&s.getBoundingClientRect().top<=y)best=i});if(best!==cur)setCur(best)};
+  let raf=0;addEventListener('scroll',()=>{if(!raf)raf=requestAnimationFrame(()=>{raf=0;upd()})},{passive:true});setCur(0);upd()})();
 
 render();
 }
