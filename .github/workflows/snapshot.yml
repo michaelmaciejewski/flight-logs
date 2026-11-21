@@ -1,0 +1,45 @@
+name: Nightly snapshot
+
+# Saves a copy of the sheet's flight rows to snapshot.json once a day,
+# so the site still shows recent flights if the sheet can't be reached.
+on:
+  schedule:
+    - cron: '17 10 * * *'   # about 3:17am in Denver
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Read the sheet
+        run: |
+          URL=$(grep -oP "const API_URL='\K[^']+" index.html || true)
+          if [ -z "$URL" ]; then echo "API_URL isn't set in index.html yet; nothing to do."; exit 0; fi
+          curl -sSL --fail --max-time 60 "$URL" -o raw.json
+          python3 - <<'PY'
+          import json, time
+          j = json.load(open('raw.json'))
+          if not j.get('ok') or len(j.get('values', [])) < 10:
+              raise SystemExit('Unexpected reply from the sheet; keeping the old snapshot.')
+          out = {'values': j['values'], 'coords': j.get('coords', []), 'at': int(time.time() * 1000)}
+          try:
+              old = json.load(open('snapshot.json'))
+          except Exception:
+              old = None
+          if old and old.get('values') == out['values'] and old.get('coords') == out['coords']:
+              print('No changes.')
+          else:
+              json.dump(out, open('snapshot.json', 'w'), separators=(',', ':'))
+              print('Snapshot updated.')
+          PY
+          rm -f raw.json
+      - name: Commit if changed
+        run: |
+          git config user.name "flight-log-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add snapshot.json 2>/dev/null || true
+          git diff --cached --quiet || (git commit -m "Nightly snapshot" && git push)

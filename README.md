@@ -1,18 +1,27 @@
 # Flight Log
 
-A single-page dashboard of every flight since 2005: maps, stats, trips, milestones and an airport passport.
+A single-page dashboard of every flight since 2005: route map, 3D globe, stats, trips, year-vs-year,
+states and countries, an aircraft collection and an airport passport.
 
 **Live site:** https://michaelmaciejewski.github.io/flight-logs/
 
 ## How the data works
-- The flights live in a private Google Sheet. The page never links to it.
-- `Code.gs` is a Google Apps Script attached to that sheet and deployed as a web app.
-  - Anyone can **read** the flight rows, which is what the public page shows.
-  - **Adding, editing and deleting** flights requires a token. The token is kept only in the
-    owner's browser (localStorage), never in this repo.
-- When the sheet changes, the page picks it up on load, every minute, and when you switch back to the tab.
-- If the sheet can't be reached, the page falls back to the snapshot built into `index.html`.
+- Flights live in a private Google Sheet. The page never links to it.
+- `Code.gs` is a Google Apps Script attached to that sheet, deployed as a web app.
+  - Anyone can **read** the flight rows (that's what the public page shows).
+  - **Adding, editing, deleting** and **importing Flighty delays** need a token, kept only in the owner's
+    browser — never in this repo.
+  - `setupBackup()` turns on a nightly hidden backup tab (newest 14 kept).
+- The page refreshes from the sheet on load, every minute, and when you return to the tab. Each device keeps
+  its last good copy, so the site works offline (it installs as an app on phones).
+- `.github/workflows/snapshot.yml` saves `snapshot.json` nightly as a fallback copy.
 
-## Setup
-Open the site, click **Add flight** (or the sync pill), and follow the steps in the Connect panel.
-`Code.gs` here has `__TOKEN__` as a placeholder. The panel's **Copy script** button fills in your token.
+## Files
+| File | What it is |
+|---|---|
+| `index.html` | The whole site |
+| `Code.gs` | Apps Script for the sheet (`__TOKEN__` is a placeholder) |
+| `sw.js`, `manifest.webmanifest`, `*.png` | Offline support, home-screen app, link preview image |
+| `snapshot.json` | Nightly copy of the sheet (created by the workflow) |
+
+Map data: Natural Earth (public domain).

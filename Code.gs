@@ -65,6 +65,10 @@ function doPost(e) {
         else if (op.op === 'delete') m.deleteRow(row);
         else throw new Error('Unknown row op');
       });
+    } else if (body.action === 'multi') {
+      (body.data || []).forEach(function (d) {
+        range_(d.range).offset(0, 0, d.values.length, d.values[0].length).setValues(d.values);
+      });
     } else if (body.action === 'noop') {
       // token check only
     } else {
@@ -109,4 +113,36 @@ function send_(obj, cb) {
     return ContentService.createTextOutput(cb + '(' + json + ')').setMimeType(ContentService.MimeType.JAVASCRIPT);
   }
   return ContentService.createTextOutput(json).setMimeType(ContentService.MimeType.JSON);
+}
+
+/**
+ * NIGHTLY BACKUP
+ * Run setupBackup() once (pick it in the toolbar, click Run). After that, every night around 3am
+ * a hidden copy of the flight tab is saved as "Backup YYYY-MM-DD". The newest 14 are kept.
+ * To restore: right-click the tab bar → View hidden sheets → pick a backup.
+ */
+var KEEP_BACKUPS = 14;
+
+function setupBackup() {
+  ScriptApp.getProjectTriggers().forEach(function (t) {
+    if (t.getHandlerFunction() === 'backupNightly') ScriptApp.deleteTrigger(t);
+  });
+  ScriptApp.newTrigger('backupNightly').timeBased().everyDays(1).atHour(3).create();
+  backupNightly();
+}
+
+function backupNightly() {
+  var ss = ss_();
+  var src = ss.getSheetByName(MAIN);
+  var name = 'Backup ' + Utilities.formatDate(new Date(), ss.getSpreadsheetTimeZone(), 'yyyy-MM-dd');
+  var old = ss.getSheetByName(name);
+  if (old) ss.deleteSheet(old);
+  var copy = src.copyTo(ss).setName(name);
+  // keep values only, so the backup never changes when formulas recalculate
+  var rg = copy.getDataRange();
+  rg.setValues(rg.getValues());
+  copy.hideSheet();
+  var backups = ss.getSheets().filter(function (s) { return /^Backup \d{4}-\d{2}-\d{2}$/.test(s.getName()); })
+    .sort(function (a, b) { return a.getName() < b.getName() ? 1 : -1; });
+  backups.slice(KEEP_BACKUPS).forEach(function (s) { ss.deleteSheet(s); });
 }
