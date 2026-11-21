@@ -19,6 +19,12 @@
 var TOKEN = '__TOKEN__';
 var MAIN = 'Flight Information';
 var ALLOWED = [MAIN, 'Coords'];
+// Your sheet's ID (the long code in its URL). Needed when the script isn't opened from the sheet itself.
+var SHEET_ID = '';
+
+function ss_() {
+  return SHEET_ID ? SpreadsheetApp.openById(SHEET_ID) : SpreadsheetApp.getActiveSpreadsheet();
+}
 
 function doGet(e) {
   var p = (e && e.parameter) || {};
@@ -43,7 +49,7 @@ function doPost(e) {
   var lock = LockService.getScriptLock();
   lock.waitLock(20000);
   try {
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var ss = ss_();
     if (body.action === 'update') {
       var rg = range_(body.range);
       rg.offset(0, 0, body.values.length, body.values[0].length).setValues(body.values);
@@ -76,7 +82,7 @@ function doPost(e) {
 function sheet_(name) {
   name = String(name).replace(/^'|'$/g, '');
   if (ALLOWED.indexOf(name) < 0) throw new Error('Sheet not allowed: ' + name);
-  var sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(name);
+  var sh = ss_().getSheetByName(name);
   if (!sh) throw new Error('Missing sheet: ' + name);
   return sh;
 }
