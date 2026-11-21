@@ -259,7 +259,7 @@ a.jp:hover{text-decoration:underline}
 .dq li.s2{border-left-color:var(--bad)}.dq li.s1{border-left-color:#f5b041}.dq li small{display:block;color:var(--mute);font-size:12px}.dq li .mono{font-size:12px;color:var(--mute)}.dq li b{color:var(--ink);font-size:13px}
 td.ed{width:1%;white-space:nowrap}.edb{font:500 12px Geist,sans-serif;height:32px;padding:0 10px;border-radius:8px;border:1px solid var(--stroke);background:var(--glass);color:var(--mute);cursor:pointer}.edb:hover{color:var(--ink)}
 html.share .priv{display:none!important}
-.cxs{margin:0 0 14px;padding-left:20px;display:grid;gap:6px;font-size:13px;line-height:1.45}.cxs code{font-family:"Geist Mono",monospace;font-size:12px}#cxOn[hidden]{display:none!important}
+.cxs{margin:0 0 14px;padding-left:20px;display:grid;gap:6px;font-size:13px;line-height:1.45}.cxs code{font-family:"Geist Mono",monospace;font-size:12px}#cxOn[hidden],#cxQr[hidden],#cxSteps[hidden],.fg label[hidden]{display:none!important}#cxQrImg svg{display:block;max-width:220px;height:auto}
 dialog.small{width:min(420px,calc(100vw - 24px));padding:20px}dialog.small .btns{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
 dialog.story{width:min(440px,100vw);height:min(760px,100dvh);max-height:100dvh;padding:0;border:0;border-radius:22px;color:#fff;background:radial-gradient(120% 80% at 20% 10%,#14b8a6 0,transparent 55%),radial-gradient(100% 70% at 90% 90%,#ff6b4a 0,transparent 55%),linear-gradient(160deg,#0b2638,#081019);overflow:hidden}
 dialog.story::backdrop{background:rgba(2,6,12,.7);backdrop-filter:blur(8px)}
@@ -411,7 +411,7 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px}
 <footer><div class="wrap"><span>Source: a private Google Sheet, read live through Apps Script (a saved snapshot if it can’t be reached). Scheduled local times; great-circle distances.</span><span class="mono" id="build"></span></div></footer>
 <dialog id="dlg" class="glass" aria-labelledby="dlgH">
   <form id="fm" novalidate>
-    <div class="dh"><h2 id="dlgH">Add a flight</h2><p class="sub2">Saved straight into your flight sheet, in date order.</p></div>
+    <div class="dh" style="display:flex;gap:12px;align-items:flex-start"><div style="flex:1"><h2 id="dlgH">Add a flight</h2><p class="sub2">Saved straight into your flight sheet, in date order.</p></div><button class="ibtn" type="button" id="devB">Connect a device</button></div>
     <div class="fg">
       <label>Date<input name="date" type="date" required></label>
       <label>Flight number<input name="fn" placeholder="UA1510" autocomplete="off" class="up"></label>
@@ -451,10 +451,11 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px}
   <div class="answer" id="askA" aria-live="polite"></div><div class="btns" style="margin-top:12px;display:flex;justify-content:flex-end"><button class="ibtn" type="button" id="askX">Close</button></div></form></dialog>
 <dialog id="cx" class="glass" aria-labelledby="cxH"><form id="cxF" method="dialog" style="padding:22px">
   <div class="dh"><h2 id="cxH">Connect your Google Sheet</h2><p class="sub2">Visitors only ever read your flights. Adding, editing and deleting needs the token, which stays on your devices.</p></div>
-  <ol class="cxs"><li>Press <b>Copy script</b> (the token below is already filled in).</li><li>In your sheet: <b>Extensions → Apps Script</b>, replace everything with the script, Save.</li>
+  <ol class="cxs" id="cxSteps"><li>Press <b>Copy script</b> (the token below is already filled in).</li><li>In your sheet: <b>Extensions → Apps Script</b>, replace everything with the script, Save.</li>
   <li><b>Deploy → New deployment → Web app</b> · Execute as <b>Me</b> · Who has access <b>Anyone</b>. Approve, then copy the URL ending in <code>/exec</code>.</li><li>Paste it here and press <b>Connect</b>.</li></ol>
-  <div class="fg" style="grid-template-columns:1fr"><label>Web app URL<input id="cxU" placeholder="https://script.google.com/macros/s/…/exec" autocomplete="off" spellcheck="false"></label>
+  <div class="fg" style="grid-template-columns:1fr"><label id="cxUL">Web app URL<input id="cxU" placeholder="https://script.google.com/macros/s/…/exec" autocomplete="off" spellcheck="false"></label>
   <label>Token<div class="askrow"><input id="cxK" autocomplete="off" spellcheck="false" style="font-family:'Geist Mono',monospace"><button class="ibtn" type="button" id="cxNew">New</button></div></label></div>
+  <div id="cxQr" hidden style="display:grid;justify-items:center;gap:6px;margin:6px 0 4px"><div id="cxQrImg" style="background:#fff;padding:10px;border-radius:12px;line-height:0"></div><span class="sub2">Scan with your phone’s camera to connect it</span></div>
   <p class="sub2" id="cxMsg" aria-live="polite" style="min-height:1.2em;margin:10px 0"></p>
   <div class="btns" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end"><button class="ibtn" type="button" id="cxCopy">Copy script</button>
    <span id="cxOn" style="display:contents"><button class="ibtn" type="button" id="cxLink">Copy link for another device</button><button class="ibtn danger" type="button" id="cxOff">Disconnect</button></span>
@@ -782,8 +783,11 @@ const sheetShim=()=>{const W=[];
     invalidate:async()=>{W.at=Date.now();await runAll()}}};
 /* connect panel */
 const newTok=()=>{const a=new Uint8Array(12);crypto.getRandomValues(a);return [...a].map(b=>b.toString(16).padStart(2,'0')).join('')};
+const setupLink=()=>location.origin+location.pathname+'#u='+encodeURIComponent(GS.url)+'&k='+encodeURIComponent(GS.key);
+const showQr=()=>{const go=()=>{try{const q=qrcode(0,'M');q.addData(setupLink());q.make();$('cxQrImg').innerHTML=q.createSvgTag(4,0);$('cxQr').hidden=false}catch(e){}};
+  if(window.qrcode)return go();const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js';s.onload=go;document.head.appendChild(s)};
 const openCx=()=>{const d=$('cx');$('cxU').value=GS.url;$('cxK').value=GS.key||newTok();
-  $('cxOn').hidden=!GS.key;$('cxMsg').textContent=GS.key?'Connected on this device — you can add, edit and delete flights.':'';if(d.showModal)d.showModal();else d.setAttribute('open','')};
+  $('cxOn').hidden=!GS.key;$('cxSteps').hidden=!!GS.key;$('cxH').textContent=GS.key?'Connect another device':'Connect your Google Sheet';$('cxUL').hidden=!!API_URL&&GS.url===API_URL;$('cxQr').hidden=true;if(GS.key)showQr();$('cxMsg').textContent=GS.key?'Connected on this device — you can add, edit and delete flights.':'';if(d.showModal)d.showModal();else d.setAttribute('open','')};
 let mcp=null,live={v:null,c:null,at:0},isLive=false;
 const setSync=(state,text,tipTxt)=>{const b=$('sync');b.dataset.state=state;$('syncT').textContent=text;b.dataset.tip=tipTxt||'';
   $('addB').disabled=false;$('addB').dataset.tip=GS.key?'':'Connect your sheet to add flights'};
@@ -1124,6 +1128,7 @@ $('askF').addEventListener('submit',async e=>{e.preventDefault();const q=$('askQ
 const cxMsg=t=>$('cxMsg').textContent=t;
 $('cxNew').addEventListener('click',()=>{$('cxK').value=newTok();cxMsg('New token — copy the script again and redeploy it as a new version.')});
 $('cxX').addEventListener('click',()=>$('cx').close());
+$('devB').addEventListener('click',()=>{dlg.close();openCx()});
 $('cxCopy').addEventListener('click',async()=>{const t=CODE_GS.replace('__TOKEN__',$('cxK').value.trim());try{await navigator.clipboard.writeText(t);cxMsg('Script copied. Paste it into Extensions → Apps Script.')}catch(e){cxMsg('Couldn’t copy automatically — your browser blocked the clipboard.')}});
 $('cxGo').addEventListener('click',async()=>{const u=$('cxU').value.trim(),k=$('cxK').value.trim();
   if(!/^https:\/\/script\.google(usercontent)?\.com\/.+\/exec$/.test(u))return cxMsg('Paste the Web app URL — it starts with https://script.google.com and ends in /exec.');
@@ -1135,7 +1140,7 @@ $('cxGo').addEventListener('click',async()=>{const u=$('cxU').value.trim(),k=$('
     cxMsg('Connected!');toast('Sheet connected — reloading');setTimeout(()=>location.reload(),700)}
   catch(e){GS.set(old[0],old[1]);if(!old[0])GS.clear();cxMsg('Couldn’t read the sheet from that URL ('+(e.message||e.code)+'). Check that access is set to “Anyone”.')}});
 $('cxOff').addEventListener('click',()=>{GS.clear();toast('Disconnected on this device');setTimeout(()=>location.reload(),600)});
-$('cxLink').addEventListener('click',async()=>{const l=location.origin+location.pathname+'#u='+encodeURIComponent(GS.url)+'&k='+encodeURIComponent(GS.key);
+$('cxLink').addEventListener('click',async()=>{const l=setupLink();
   try{await navigator.clipboard.writeText(l);cxMsg('Link copied. Open it once on your other device — send it privately, it contains your token.')}catch(e){cxMsg(l)}});
 
 render();
