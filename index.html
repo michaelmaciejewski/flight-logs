@@ -314,7 +314,7 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px}
   <section class="head">
     <div>
       <h1 id="title">Michael's flight log</h1>
-      <p class="sub" id="sub">Every flight from the cleaned Flight Data sheet.</p>
+      <p class="sub" id="sub">Every flight from the cleaned flight sheet.</p>
     </div>
     <div class="hacts">
       <div class="next glass" id="next" hidden></div>
@@ -408,7 +408,7 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px}
   </section>
 </main>
 
-<footer><div class="wrap"><span>Source: your Flight Data Google Sheet, synced live when opened in Claude (a saved snapshot otherwise). Scheduled local times; great-circle distances.</span><span class="mono" id="build"></span></div></footer>
+<footer><div class="wrap"><span>Source: a private Google Sheet, read live through Apps Script (a saved snapshot if it can’t be reached). Scheduled local times; great-circle distances.</span><span class="mono" id="build"></span></div></footer>
 <dialog id="dlg" class="glass" aria-labelledby="dlgH">
   <form id="fm" novalidate>
     <div class="dh"><h2 id="dlgH">Add a flight</h2><p class="sub2">Saved straight into your flight sheet, in date order.</p></div>
@@ -805,7 +805,7 @@ const watch=()=>{const h=k=>ev=>{if(ev.type==='data'){const p=ev.result.payload,
     live[k]=vals;live.at=ev.result.cache?ev.result.cache.storedAt:Date.now();apply()}else onErr(ev.error)};
   mcp.watchTool(SRV,'get_values',{spreadsheetId:SHEET,range:TAB+'!A:Z'},h('v'),{refetchInterval:60000});
   mcp.watchTool(SRV,'get_values',{spreadsheetId:SHEET,range:'Coords!A:C'},h('c'),{refetchInterval:300000})};
-$('sync').addEventListener('click',async()=>{if(!mcp)return openCx();const st=$('sync').dataset.state;setSync('busy','Syncing…','Reading your Flight Data sheet');
+$('sync').addEventListener('click',async()=>{if(!mcp)return openCx();const st=$('sync').dataset.state;setSync('busy','Syncing…','Reading the flight sheet');
   try{if(st==='off'){const r=await mcp.callTool(SRV,'get_values',{spreadsheetId:SHEET,range:TAB+'!A:Z'});const p=r.payload;live.v=p&&(p.values||(p.content&&p.content.values));
       const r2=await mcp.callTool(SRV,'get_values',{spreadsheetId:SHEET,range:'Coords!A:C'});const p2=r2.payload;live.c=p2&&(p2.values||(p2.content&&p2.content.values));live.at=Date.now();apply();watch()}
     else await mcp.invalidate(SRV,'get_values')}catch(e){onErr(e)}});
@@ -813,7 +813,7 @@ setSync('busy','Loading…','');
 (async()=>{try{mcp=window.claude&&window.claude.use?await window.claude.use('mcp'):null}catch(e){mcp=null}
   if(!mcp&&GS.url)mcp=sheetShim();
   if(!mcp){setSync('off','Snapshot','Showing the saved snapshot. Click to connect your Google Sheet.');return}
-  setSync('busy','Connecting…','Reading your Flight Data sheet');watch()})();
+  setSync('busy','Connecting…','Reading the flight sheet');watch()})();
 
 /* ---------- add a flight ---------- */
 const dlg=$('dlg'),fm=$('fm'),F_=n=>fm.elements[n];
